@@ -1,12 +1,23 @@
 """Main FastAPI application."""
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import router
 from app.api.payment_routes import router as payment_router
+from app.infrastructure.db import create_tables_if_sqlite
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await create_tables_if_sqlite()
+    yield
+
 
 app = FastAPI(
+    lifespan=lifespan,
     title="Marketplace API",
     description="DDD-based marketplace API for lab work",
     version="1.0.0",
